@@ -1,5 +1,5 @@
 public class OrderLine {
-    private Menu menu;       // Objek menu yang dibeli
+    private final Menu menu;       // Objek menu yang dibeli
     private int kuantitas;   // Jumlah yang dibeli
 
     public OrderLine(Menu menu, int kuantitas) {
