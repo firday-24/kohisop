@@ -1,6 +1,7 @@
 import java.util.*;
 
 public class Main {
+
     public static void main(String[] args) {
         LinkedList<Menu> katalog = Menu.generateDaftarMenu();
         Order pesan = new Order();
@@ -9,67 +10,62 @@ public class Main {
         Menu.listMenu(katalog);
 
         boolean lanjutPesan = true;
-
         while (lanjutPesan) {
             System.out.print("\nMasukkan Kode (Enter untuk Selesai; CC untuk Batal): ");
             String kode = scan.nextLine().trim();
-    
-            // SELESAI (User cuma tekan enter)
+
+            // SELESAI
             if (kode.isEmpty()) {
-               // Cek apakah keranjang masih kosong
-               if (pesan.getKeranjang().isEmpty()) {
-                 System.out.println("Harap masukkan kode menu terlebih dahulu!");
-                 continue; // Balik lagi ke atas untuk minta input kode
-               } 
-               else {
-                 lanjutPesan = false; 
-                 System.out.println("\n=========================================================");
-                 System.out.println("    ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:    ");
-                 pesan.tampilkanTabelPesanan();
-                 break; 
-               }
+                if (pesan.getKeranjang().isEmpty()) {
+                    System.out.println("Harap masukkan kode menu terlebih dahulu!");
+                    continue;
+                }
+                lanjutPesan = false;
+                System.out.println("\n=========================================================");
+                System.out.println("   ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:   ");
+                System.out.println("=========================================================");
+                // Tampilkan tagihan lengkap dengan pajak
+                pesan.tampilkanTagihan();
+                break;
             }
 
-            // CANCEL
+            // BATAL
             if (kode.equalsIgnoreCase("CC")) {
-            System.out.println("Transaksi dibatalkan.");
-            System.exit(0);
+                System.out.println("Transaksi dibatalkan.");
+                System.exit(0);
             }
 
-            // Cari item di katalog
             Menu terpilih = cariMenu(katalog, kode);
             if (terpilih == null) {
                 System.out.println("Kode tidak valid! Cek kembali kode menu.");
                 continue;
             }
 
-            // 3. CEK KUOTA PENUH (Taruh di sini)
+            // Cek kuota penuh
             int jumlahMakanan = pesan.getJumlahJenis(Makanan.class);
             int jumlahMinuman = pesan.getJumlahJenis(Minuman.class);
-
-            // Jika kuota sudah 5-5 DAN menu yang diinput adalah menu BARU (belum ada di keranjang)
-              if (jumlahMakanan >= 5 && jumlahMinuman >= 5 && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
+            if (jumlahMakanan >= 5 && jumlahMinuman >= 5
+                    && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
                 System.out.println("\n[GAGAL] Kuota pesanan penuh (5 Makanan & 5 Minuman).");
-                System.out.println("Anda tidak bisa menambah jenis menu baru lagi.");
-                continue; 
-              }
+                continue;
+            }
 
-            // Cek sudah pernah dipesan? Sudah mentok?
             if (pesan.apakahSudahMaksimal(terpilih)) {
-              System.out.println("Anda sudah pernah memesan ini sebelumnya dan sudah mencapai batas maksimal.");
-              continue; // Balik ke input kode lagi, tidak nanya kuantitas
+                System.out.println("Anda sudah mencapai batas maksimal untuk menu ini.");
+                continue;
             }
 
-            // Cek batas 5 jenis 
-            if (pesan.getJumlahJenis(terpilih.getClass()) >= 5 && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
-              System.out.println("Sudah mencapai batas pemesanan, yakni 5 jenis.");
-              continue;
+            if (pesan.getJumlahJenis(terpilih.getClass()) >= 5
+                    && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
+                System.out.println("Sudah mencapai batas pemesanan, yakni 5 jenis.");
+                continue;
             }
 
-            System.out.print("Masukkan Kuantitas (default 1; 0 atau S untuk batal memesan kode tersebut): ");
+            System.out.print("Masukkan Kuantitas (default 1; 0 atau S untuk batal): ");
             String qtyStr = scan.nextLine();
-            
             pesan.tambahAtauUpdatePesanan(terpilih, qtyStr);
+
+            // Tampilkan keranjang sementara (tanpa pajak)
             pesan.tampilkanTabelPesanan();
         }
     }
