@@ -26,6 +26,10 @@ public class Main {
                 System.out.println("=========================================================");
                 // Tampilkan tagihan lengkap dengan pajak
                 pesan.tampilkanTagihan();
+                // Tambahan: lanjut ke channel pembayaran
+                double totalAkhir = pesan.getTotalAkhir();
+                PaymentProcessor processor = new PaymentProcessor();
+                processor.jalankan(totalAkhir, scan);
                 break;
             }
 
