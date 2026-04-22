@@ -136,4 +136,14 @@ public class Order {
         System.out.printf("  %52s TOTAL    : Rp %10.2f\n", "", totalAkhir);
         System.out.println("=============================================================================");
     }
+
+    // Kembalikan nilai total akhir (harga + pajak) untuk diproses pembayaran
+    public double getTotalAkhir() {
+        double total = 0;
+        for (OrderLine ol : keranjang) {
+            Menu m = ol.getMenu();
+            total += (m.getHarga() + m.hitungPajak()) * ol.getKuantitas();
+        }
+        return total;
+    }
 }
