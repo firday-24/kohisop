@@ -87,14 +87,16 @@ public class Order {
 
     // Tabel pesanan sementara (tanpa pajak final) — ditampilkan saat masih input
     public void tampilkanTabelPesanan() {
-        System.out.println("-------------------------------------------------------");
-        System.out.printf("| %-3s | %-27s | %-8s |\n", "Kode", "Menu", "Kuantitas");
-        System.out.println("-------------------------------------------------------");
+        System.out.println("\n" + "=".repeat(65));
+        System.out.println("                    PESANAN ANDA");
+        System.out.println("=".repeat(65));
+        System.out.printf("| %-5s | %-35s | %8s |\n", "Kode", "Menu", "Kuantitas");
+        System.out.println("-".repeat(65));
         for (OrderLine ol : keranjang) {
-            System.out.printf("| %-3s | %-27s | %-8d |\n",
+            System.out.printf("| %-5s | %-35s | %8d |\n",
                     ol.getMenu().getKode(), ol.getMenu().getNama(), ol.getKuantitas());
         }
-        System.out.println("-------------------------------------------------------");
+        System.out.println("=".repeat(65));
     }
 
     // Tabel final lengkap dengan kolom pajak dan total — dipanggil saat selesai memesan

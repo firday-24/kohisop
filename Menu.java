@@ -49,22 +49,28 @@ public abstract class Menu implements ICheck {
     }
 
     public static void listMenu(LinkedList<Menu> list) {
-        System.out.println("-------------------------------------------------------");
-        System.out.printf("| %-3s | %-30s | %-9s |\n", "Kode", "Menu Minuman", "Harga");
-        System.out.println("-------------------------------------------------------");
+        System.out.println("\n" + "=".repeat(65));
+        System.out.println("                    MENU MINUMAN");
+        System.out.println("=".repeat(65));
+        System.out.printf("| %-5s | %-35s | %8s |\n", "Kode", "Menu", "Harga");
+        System.out.println("-".repeat(65));
         for (Menu m : list) {
             if (m instanceof Minuman) {
-                System.out.printf("| %-3s | %-30s | %-9d |\n", m.kode, m.nama, m.harga);
+                System.out.printf("| %-5s | %-35s | %8d |\n", m.kode, m.nama, m.harga);
             }
         }
-        System.out.println("-------------------------------------------------------");
-        System.out.printf("| %-3s | %-30s | %-9s |\n", "Kode", "Menu Makanan", "Harga");
-        System.out.println("-------------------------------------------------------");
+        System.out.println("=".repeat(65));
+
+        System.out.println("\n" + "=".repeat(65));
+        System.out.println("                    MENU MAKANAN");
+        System.out.println("=".repeat(65));
+        System.out.printf("| %-5s | %-35s | %8s |\n", "Kode", "Menu", "Harga");
+        System.out.println("-".repeat(65));
         for (Menu m : list) {
             if (m instanceof Makanan) {
-                System.out.printf("| %-3s | %-30s | %-9d |\n", m.kode, m.nama, m.harga);
+                System.out.printf("| %-5s | %-35s | %8d |\n", m.kode, m.nama, m.harga);
             }
         }
-        System.out.println("-------------------------------------------------------");
+        System.out.println("=".repeat(65) + "\n");
     }
 }
