@@ -9,84 +9,79 @@ public class Main {
 
         // Welcome Message
         tampilkanWelcome();
-        
+        System.out.println("Catatan:\nMaksimal pesan adalah 5 jenis untuk makanan dan makanan\n"
+                              +"2 kuantitas untuk tiap jenis makanan dan 3 kuantitas untuk tiap jemis minuman.");
+
         Menu.listMenu(katalog);
 
         boolean lanjutPesan = true;
+
         while (lanjutPesan) {
-            System.out.print("Masukkan Kode Menu (CC untuk Batal): ");
+            // 1. CEK AUTO-FINISH (Jika sudah 5 Makanan & 5 Minuman)
+            int jumlahMakanan = pesan.getJumlahJenis(Makanan.class);
+            int jumlahMinuman = pesan.getJumlahJenis(Minuman.class);
+            
+            if (jumlahMakanan >= 5 && jumlahMinuman >= 5) {
+                System.out.println("\n[SISTEM] Kuota pesanan penuh (5 Makanan & 5 Minuman).");
+                break; // Keluar dari loop
+            }
+
+            System.out.print("\nMasukkan Kode (Enter untuk Selesai; CC untuk Batal): ");
             String kode = scan.nextLine().trim();
 
-            // BATAL
+            // 2. LOGIKA SELESAI (User cuma tekan Enter)
+            if (kode.isEmpty()) {
+                if (pesan.getKeranjang().isEmpty()) {
+                    System.out.println("Harap masukkan kode menu terlebih dahulu!");
+                    continue; 
+                } else {
+                    break; // Keluar dari loop untuk cetak nota final
+                }
+            }
+
+            // 3. LOGIKA BATAL TOTAL
             if (kode.equalsIgnoreCase("CC")) {
-                System.out.println("\n✗ Transaksi dibatalkan.");
+                System.out.println("Transaksi dibatalkan.");
                 System.exit(0);
             }
 
-            //Cari item di katalog
+            // 4. CARI MENU DI KATALOG
             Menu terpilih = cariMenu(katalog, kode);
             if (terpilih == null) {
-                System.out.println("Kode tidak valid! Cek kembali kode menu.\n");
+                System.out.println("Kode tidak valid! Cek kembali kode menu.");
                 continue;
             }
 
-            // Cek kuota penuh
-            int jumlahMakanan = pesan.getJumlahJenis(Makanan.class);
-            int jumlahMinuman = pesan.getJumlahJenis(Minuman.class);
-            // Jika kuota sudah 5-5 DAN menu yang diinput adalah menu BARU (belum ada di keranjang)
-            if (jumlahMakanan >= 5 && jumlahMinuman >= 5
-                    && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
-                System.out.println("\n[GAGAL] Kuota pesanan penuh (5 Makanan & 5 Minuman).");
-                continue;
-            }
-
-            // Cek sudah pernah dipesan? Sudah mentok?
-            if (pesan.apakahSudahMaksimal(terpilih)) {
-                System.out.println("Anda sudah mencapai batas maksimal untuk menu ini.");
-                continue;
-            }
-
-            //Cek batas 5 jenis
+            // 5. VALIDASI SLOT JENIS (Maksimal 5 per kategori)
             if (pesan.getJumlahJenis(terpilih.getClass()) >= 5 && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
-                System.out.println("Sudah mencapai batas pemesanan, yakni 5 jenis.");
+                System.out.println("Gagal! Slot untuk jenis " + terpilih.getClass().getSimpleName() + " sudah penuh (Maks 5).");
                 continue;
             }
 
-            System.out.print("Masukkan Kuantitas (default 1; 0 atau S untuk batal): ");
-            String qtyStr = scan.nextLine();
-            pesan.tambahAtauUpdatePesanan(terpilih, qtyStr);
+            // 6. VALIDASI PORSI MAKSIMAL (2 untuk Makanan, 3 untuk Minuman)
+            if (pesan.apakahSudahMaksimal(terpilih)) {
+                System.out.println("Gagal! Anda sudah mencapai batas maksimal porsi untuk menu ini.");
+                continue;
+            }
 
-            // Tampilkan keranjang sementara
+            // 7. INPUT KUANTITAS
+            System.out.print("Masukkan Kuantitas (default 1; 0 atau S untuk hapus): ");
+            String qtyStr = scan.nextLine().trim();
+            
+            // 8. PROSES & UPDATE TABEL
+            pesan.tambahAtauUpdatePesanan(terpilih, qtyStr);
             pesan.tampilkanTabelPesanan();
             
-            // Tanya apakah ada pesanan lain
-            if (!pesan.getKeranjang().isEmpty()) {
-                boolean inputValid = false;
-                while (!inputValid) {
-                    System.out.print("\nApakah ada pesanan lain? (Y/N): ");
-                    String jawab = scan.nextLine().trim().toLowerCase();
-                    
-                    if (jawab.equals("y") || jawab.equals("yes")) {
-                        inputValid = true;
-                        // Lanjut ke loop berikutnya
-                    } else if (jawab.equals("n") || jawab.equals("no")) {
-                        lanjutPesan = false;
-                        inputValid = true;
-                        System.out.println("\n" + "=".repeat(65));
-                        System.out.println("     ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:");
-                        System.out.println("=".repeat(65));
-                        // Tampilkan tagihan lengkap dengan pajak
-                        pesan.tampilkanTagihan();
-                        // Tambahan: lanjut ke channel pembayaran
-                        double totalAkhir = pesan.getTotalAkhir();
-                        PaymentProcessor processor = new PaymentProcessor();
-                        processor.jalankan(totalAkhir, scan);
-                    } else {
-                        System.out.println("Input tidak valid! Silakan masukkan Y atau N.");
-                    }
-                }
-            }
         }
+            System.out.println("\n" + "=".repeat(65));
+            System.out.println("     ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:");
+            System.out.println("=".repeat(65));
+            // Tampilkan tagihan lengkap dengan pajak
+            pesan.tampilkanTagihan();
+            // Tambahan: lanjut ke channel pembayaran
+            double totalAkhir = pesan.getTotalAkhir();
+            PaymentProcessor processor = new PaymentProcessor();
+            processor.jalankan(totalAkhir, scan);
     }
 
     private static Menu cariMenu(LinkedList<Menu> list, String kode) {
