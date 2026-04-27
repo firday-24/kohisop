@@ -23,28 +23,31 @@ public class Main {
                 System.exit(0);
             }
 
+            //Cari item di katalog
             Menu terpilih = cariMenu(katalog, kode);
             if (terpilih == null) {
-                System.out.println("❌ Kode tidak valid! Cek kembali kode menu.\n");
+                System.out.println("Kode tidak valid! Cek kembali kode menu.\n");
                 continue;
             }
 
             // Cek kuota penuh
             int jumlahMakanan = pesan.getJumlahJenis(Makanan.class);
             int jumlahMinuman = pesan.getJumlahJenis(Minuman.class);
+            // Jika kuota sudah 5-5 DAN menu yang diinput adalah menu BARU (belum ada di keranjang)
             if (jumlahMakanan >= 5 && jumlahMinuman >= 5
                     && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
                 System.out.println("\n[GAGAL] Kuota pesanan penuh (5 Makanan & 5 Minuman).");
                 continue;
             }
 
+            // Cek sudah pernah dipesan? Sudah mentok?
             if (pesan.apakahSudahMaksimal(terpilih)) {
                 System.out.println("Anda sudah mencapai batas maksimal untuk menu ini.");
                 continue;
             }
 
-            if (pesan.getJumlahJenis(terpilih.getClass()) >= 5
-                    && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
+            //Cek batas 5 jenis
+            if (pesan.getJumlahJenis(terpilih.getClass()) >= 5 && !pesan.apakahSudahAdaDiKeranjang(terpilih)) {
                 System.out.println("Sudah mencapai batas pemesanan, yakni 5 jenis.");
                 continue;
             }
