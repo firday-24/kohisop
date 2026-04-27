@@ -3,7 +3,9 @@ import java.util.LinkedList;
 public class Order {
     private LinkedList<OrderLine> keranjang = new LinkedList<>();
 
-    public LinkedList<OrderLine> getKeranjang() { return keranjang; }
+    public LinkedList<OrderLine> getKeranjang() { 
+        return keranjang; 
+    }
 
     public void tambahAtauUpdatePesanan(Menu item, String inputQty) {
         if (inputQty.equalsIgnoreCase("CC")) {
@@ -11,11 +13,13 @@ public class Order {
             System.exit(0);
         }
 
+        // Skip atau hapus (Input 'S' atau '0')
         if (inputQty.equalsIgnoreCase("S") || inputQty.equals("0")) {
             hapusDariKeranjang(item);
             return;
         }
 
+        // Tentukan kuantitas (Default 1 jika kosong)
         int qtyBaru;
         try {
             qtyBaru = inputQty.isEmpty() ? 1 : Integer.parseInt(inputQty);
@@ -24,6 +28,7 @@ public class Order {
             return;
         }
 
+        // Cek sudah ada di keranjang?
         int qtyLama = 0;
         for (OrderLine ol : keranjang) {
             if (ol.getMenu().getKode().equals(item.getKode())) {
@@ -32,11 +37,13 @@ public class Order {
             }
         }
 
+        // Validasi total tiap menu
         int totalQty = qtyLama + qtyBaru;
         if (!item.kuantitasValid(totalQty)) {
             if (qtyLama == 0) {
                 System.out.println("Gagal! Maksimal per jenis hanya " + item.maksimalPesan() + " porsi.");
             } else {
+                // Sebelumnya sudah ada, lalu ditambah dan jadi kebanyakan
                 System.out.println("Gagal! Total pesanan " + item.getNama() +
                         " akan menjadi " + totalQty + " porsi.");
                 System.out.println("Maksimal per jenis hanya " + item.maksimalPesan() + " porsi.");
@@ -70,6 +77,7 @@ public class Order {
                 return;
             }
         }
+        // Jika benar-benar baru, masukkan ke list
         keranjang.add(new OrderLine(item, qtyBaru));
     }
 
