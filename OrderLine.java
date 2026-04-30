@@ -7,7 +7,15 @@ public class OrderLine {
         this.kuantitas = kuantitas;
     }
 
-    public Menu getMenu()            { return menu; }
-    public int getKuantitas()        { return kuantitas; }
-    public void setKuantitas(int k)  { this.kuantitas = k; }
+    public Menu getMenu() { 
+        return menu; 
+    }
+    
+    public int getKuantitas() {
+        return kuantitas; 
+    }
+    
+    public void setKuantitas(int k) { 
+        this.kuantitas = k; 
+    }
 }
