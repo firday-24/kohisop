@@ -58,7 +58,8 @@ public class PaymentProcessor {
         } else {
             // Jika pembayaran berhasil, lanjut ke pemilihan mata uang
             CurrencyProcessor currencyProc = new CurrencyProcessor();
-            double totalFinal = currencyProc.jalankan(totalAkhir, scan);
+            double totalSetelahDiskon = channel.getTotalSetelahDiskon(totalAkhir);
+            double totalFinal = currencyProc.jalankan(totalSetelahDiskon, scan);
             System.out.println("\n✓ Transaksi Berhasil!");
             System.out.printf("  Total akhir: %.2f%n", totalFinal);
             System.out.println("\nTerima kasih telah berbelanja di KohiSop!");

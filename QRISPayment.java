@@ -17,6 +17,11 @@ public class QRISPayment implements PaymentChannel {
     }
 
     @Override
+    public double getTotalSetelahDiskon(double totalSebelumDiskon) {
+        return hitungTotal(totalSebelumDiskon);
+    }
+
+    @Override
     public boolean proses(double totalSebelumDiskon) {
         double diskon = totalSebelumDiskon * DISKON;
         double total  = hitungTotal(totalSebelumDiskon);

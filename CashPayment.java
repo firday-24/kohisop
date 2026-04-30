@@ -11,6 +11,11 @@ public class CashPayment implements PaymentChannel {
     }
 
     @Override
+    public double getTotalSetelahDiskon(double totalSebelumDiskon) {
+        return hitungTotal(totalSebelumDiskon);
+    }
+
+    @Override
     public boolean proses(double totalSebelumDiskon) {
         double total = hitungTotal(totalSebelumDiskon);
         System.out.println("  Channel      : Tunai");
