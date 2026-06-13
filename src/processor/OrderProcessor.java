@@ -64,11 +64,7 @@ public class OrderProcessor {
             prosesInputKuantitas(menuTerpilih);
         }
 
-        // Tampilan penutup ketika transaksi pemesanan selesai
-        System.out.println("\n==========================================================");
-        System.out.println("      ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:   ");
-        System.out.println("==========================================================");
-        orderBaru.tampilkanKeranjang();
+        // Pesanan selesai — kuitansi ditampilkan oleh MembershipReceiptProcessor
     }
 
     /**
