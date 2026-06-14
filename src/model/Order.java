@@ -66,45 +66,46 @@ public class Order {
 
     
     public void tampilkanKeranjang() {
-        int lK = 5, lN = 33, lQ = 11;
-        ArrayList<OrderLine> s = getSortedByKode();
+        int lK = 5, lN = 33, lH = 11, lQ = 11; // Menambahkan variabel lH untuk lebar kolom harga
+        ArrayList<OrderLine> sortedList = getSortedByKode();
 
-        if (listPesanan.isEmpty()) {
-            System.out.println("\n===========================================================");
-            System.out.println("                      PESANAN ANDA                         ");
-            System.out.println("===========================================================");
-            System.out.printf("| %s | %s | %s |\n", centerText("Kode",lK), centerText("Makanan",lN), centerText("Kuantitas",lQ));
-            System.out.println("-----------------------------------------------------------");
-            System.out.printf("| %s | %-33s | %s |\n", centerText("-",lK), "Tidak ada pesanan makanan", centerText("-",lQ));
-            System.out.println("-----------------------------------------------------------");
-            System.out.printf("| %s | %s | %s |\n", centerText("Kode",lK), centerText("Minuman",lN), centerText("Kuantitas",lQ));
-            System.out.println("-----------------------------------------------------------");
-            System.out.printf("| %s | %-33s | %s |\n", centerText("-",lK), "Tidak ada pesanan minuman", centerText("-",lQ));
-            System.out.println("===========================================================");
-            return;
+        // Lebar pembatas disesuaikan menjadi 69 karakter agar simetris dengan kolom baru
+        System.out.println("\n=========================================================================");
+        System.out.println("                         PESANAN ANDA                                ");
+        System.out.println("=========================================================================");
+        System.out.printf("| %s | %s | %s | %s |\n", centerText("Kode", lK), centerText("Makanan", lN), centerText("Harga(Rp.)", lH), centerText("Kuantitas", lQ));
+        System.out.println("-------------------------------------------------------------------------");
+        int adaM = 0;
+        for (OrderLine ol : sortedList) {
+            if (ol.getMenu() instanceof Makanan) {
+                System.out.printf("| %s | %-33s | %s | %s |\n", 
+                    centerText(ol.getMenu().getKode(), lK), 
+                    ol.getMenu().getNama(), 
+                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH), // Cetak Harga Satuan
+                    centerText(String.valueOf(ol.getKuantitas()), lQ)
+                );
+                adaM++;
+            }
         }
+        if (adaM == 0) System.out.printf("| %s | %-33s | %s | %s |\n", centerText("-", lK), "Tidak ada pesanan makanan", centerText("-", lH), centerText("-", lQ));
+        System.out.println("-------------------------------------------------------------------------");
 
-        System.out.println("\n==========================================================");
-        System.out.println("                      PESANAN ANDA                         ");
-        System.out.println("==========================================================");
-        System.out.printf("| %s | %s | %s |\n", centerText("Kode",lK), centerText("Makanan",lN), centerText("Kuantitas",lQ));
-        System.out.println("----------------------------------------------------------");
-        int n = 0;
-        for (OrderLine ol : s) if (ol.getMenu() instanceof Makanan) {
-            System.out.printf("| %s | %-33s | %s |\n", centerText(ol.getMenu().getKode(),lK), ol.getMenu().getNama(), centerText(String.valueOf(ol.getKuantitas()),lQ));
-            n++;
+        System.out.printf("| %s | %s | %s | %s |\n", centerText("Kode", lK), centerText("Minuman", lN), centerText("Harga(Rp.)", lH), centerText("Kuantitas", lQ));
+        System.out.println("-------------------------------------------------------------------------");
+        int adaMi = 0;
+        for (OrderLine ol : sortedList) {
+            if (ol.getMenu() instanceof Minuman) {
+                System.out.printf("| %s | %-33s | %s | %s |\n", 
+                    centerText(ol.getMenu().getKode(), lK), 
+                    ol.getMenu().getNama(), 
+                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH), // Cetak Harga Satuan
+                    centerText(String.valueOf(ol.getKuantitas()), lQ)
+                );
+                adaMi++;
+            }
         }
-        if (n == 0) System.out.printf("| %s | %-33s | %s |\n", centerText("-",lK), "Tidak ada pesanan makanan", centerText("-",lQ));
-        System.out.println("----------------------------------------------------------");
-        System.out.printf("| %s | %s | %s |\n", centerText("Kode",lK), centerText("Minuman",lN), centerText("Kuantitas",lQ));
-        System.out.println("----------------------------------------------------------");
-        n = 0;
-        for (OrderLine ol : s) if (ol.getMenu() instanceof Minuman) {
-            System.out.printf("| %s | %-33s | %s |\n", centerText(ol.getMenu().getKode(),lK), ol.getMenu().getNama(), centerText(String.valueOf(ol.getKuantitas()),lQ));
-            n++;
-        }
-        if (n == 0) System.out.printf("| %s | %-33s | %s |\n", centerText("-",lK), "Tidak ada pesanan minuman", centerText("-",lQ));
-        System.out.println("===========================================================");
+        if (adaMi == 0) System.out.printf("| %s | %-33s | %s | %s |\n", centerText("-", lK), "Tidak ada pesanan minuman", centerText("-", lH), centerText("-", lQ));
+        System.out.println("=========================================================================");
     }
 
     // ─── KUITANSI DENGAN PAJAK (dipanggil setelah pesanan selesai) ────────────
@@ -235,12 +236,22 @@ public class Order {
     }
 
     // ─── HELPER SORTING ──────────────────────────────────────────────────────
-    // Urut: Makanan→Minuman, lalu kode alfabet (untuk keranjang saat input)
+    // Urut: Makanan→Minuman, lalu inisial kode alfabet, lalu harga descending (termahal ke termurah)
     private ArrayList<OrderLine> getSortedByKode() {
         ArrayList<OrderLine> s = new ArrayList<>(listPesanan);
         Collections.sort(s, (a, b) -> {
+            // 1. Kelompokkan kategori (Makanan dulu baru Minuman)
             int cmp = jenis(a).compareTo(jenis(b));
-            return cmp != 0 ? cmp : a.getMenu().getKode().compareToIgnoreCase(b.getMenu().getKode());
+            if (cmp != 0) return cmp;
+
+            // 2. Kelompokkan berdasarkan inisial huruf pertama kode (M, S, A, E, B)
+            char inisialA = a.getMenu().getKode().toUpperCase().charAt(0);
+            char inisialB = b.getMenu().getKode().toUpperCase().charAt(0);
+            int inisialCompare = Character.compare(inisialA, inisialB);
+            if (inisialCompare != 0) return inisialCompare;
+
+            // 3. Jika inisial berkode sama, urutkan berdasarkan Harga Descending (Termahal -> Termurah)
+            return Double.compare(b.getMenu().getHarga(), a.getMenu().getHarga());
         });
         return s;
     }
