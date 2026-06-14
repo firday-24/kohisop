@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class MembershipManager {
     private ArrayList<Member> daftarMember;
-    private final String FILE_DATABASE = "database_member.txt";
+    private final String FILE_DATABASE = "src/database_member.txt";
 
     public MembershipManager() {
         this.daftarMember = new ArrayList<>();
