@@ -29,7 +29,7 @@ public class MembershipReceiptProcessor {
         }
 
         System.out.println("\n=========================================================================================");
-        System.out.println("                              PROSES PEMBAYARAN & MEMBERSHIP                             ");
+        System.out.println("                             PROSES PEMBAYARAN & MEMBERSHIP                             ");
         System.out.println("=========================================================================================");
         
         String kodeMemberAktif = null;
@@ -75,6 +75,9 @@ public class MembershipReceiptProcessor {
         Member member = (kodeMemberAktif != null) ? memberManager.cariMember(kodeMemberAktif) : null;
         boolean lunasDenganPoin = false;
 
+        // Simpan nilai poin awal sebelum diutak-atik untuk dicetak di rekapitulasi nanti
+        int poinAwalSebelumTransaksi = (member != null) ? member.getPoin() : 0;
+
         // === LOGIKA PEMOTONGAN POIN MEMBERSHIP (Partial) ===
         if (member != null && member.getPoin() > 0) {
             int poinTersedia = member.getPoin();
@@ -106,6 +109,7 @@ public class MembershipReceiptProcessor {
         PaymentCurrency currency = null;
         double totalSetelahDiskon = totalSetelahPoin;
         double totalFinal = totalSetelahPoin;
+        double totalSebelumPajakKonversi = 0;
 
         // === Jika belum lunas dengan poin, baru pilih channel dan mata uang ===
         if (!lunasDenganPoin && totalSetelahPoin > 0) {
@@ -130,19 +134,19 @@ public class MembershipReceiptProcessor {
             // === Pilih Mata Uang ===
             CurrencyProcessor currencyProc = new CurrencyProcessor();
             currency = currencyProc.pilihMataUang(scanner);
+            
+            // Hitung total tagihan dalam mata uang asing SEBELUM pajak, diskon, dan admin (berdasarkan nilai belanja asli)
+            totalSebelumPajakKonversi = currencyProc.konversi(totalBelanjaSebelumPajak, currency);
+            
+            // Total akhir setelah perhitungan semua komponen
             totalFinal = currencyProc.konversi(totalSetelahDiskon, currency);
         }
 
         // === CETAK KUITANSI LENGKAP ===
         int lebarLayout = 100;
         System.out.println("\n===========================================================================================================");
-        System.out.println(centerText("KUITANSI BELANJA KOHISOP", lebarLayout));
+        System.out.println(centerText("KUITANSI BELANJA KOHISOP", lebarLayout)); // Judul kuitansi di awal
         System.out.println("===========================================================================================================");
-
-        if (member != null) {
-            System.out.println(" Kode Member : " + member.getKodeMember());
-            System.out.println(" Nama Member : " + member.getNamaMember());
-        }
 
         // Tabel Makanan & Minuman
         ArrayList<OrderLine> listMakanan = new ArrayList<>();
@@ -157,55 +161,62 @@ public class MembershipReceiptProcessor {
 
         printTabelMakanan(order, kodeMemberAktif, listMakanan, lK, lN, lQ, lH, lP1, lP2, lT);
         printTabelMinuman(order, kodeMemberAktif, listMinuman, lK, lN, lQ, lH, lP1, lP2, lT);
-
-        System.out.printf("TOTAL TAGIHAN DENGAN PAJAK         : Rp %.0f%n", totalDenganPajak);
         
-        if (potonganPoin > 0) {
-            System.out.printf("POTONGAN POIN MEMBERSHIP           : Rp %.0f%n", potonganPoin);
-        }
-        System.out.printf("TOTAL SETELAH POTONGAN POIN        : Rp %.0f%n", totalSetelahPoin);
-
+        // 1. Total harga (di luar pajak)
+        System.out.printf("%-55s: Rp %.0f%n", "Total harga di luar pajak", totalBelanjaSebelumPajak);
+        
+        // 2. Total harga dengan pajak
+        System.out.printf("%-55s: Rp %.0f%n", "Total harga dengan pajak", totalDenganPajak);
+        
+        // 3. Diskon channel
+        System.out.printf("%-55s: ", "Diskon channel");
         if (lunasDenganPoin) {
-            System.out.println("\nTRANSAKSI LUNAS MENGGUNAKAN POIN MEMBERSHIP");
+            System.out.println("- (Lunas dengan Poin)");
         } else {
-            // RINGKASAN PEMBAYARAN dari channel pembayaran
-            System.out.println("-----------------------------------------------------------------------------------------------------------");
-            System.out.println("\nRINGKASAN PEMBAYARAN:");
-            System.out.println("  Channel      : " + channel.getNamaChannel());
+            System.out.print(channel.getNamaChannel());
             if (channel instanceof QRISPayment) {
-                System.out.printf("  Diskon 5%%    : Rp %.2f%n", totalSetelahPoin * 0.05);
+                System.out.println(" / Diskon 5%");
             } else if (channel instanceof EMoneyPayment) {
-                System.out.printf("  Diskon 7%%    : Rp %.2f%n", totalSetelahPoin * 0.07);
-                System.out.println("  Biaya Admin  : Rp 20.00");
+                System.out.println(" / Diskon 7%");
+            } else {
+                System.out.println(" / tanpa diskon");
             }
-            System.out.printf("  TOTAL SETELAH DISKON & ADMIN : Rp %.2f%n", totalSetelahDiskon);
-
-            // RINGKASAN KONVERSI dari mata uang
-            System.out.println("-----------------------------------------------------------------------------------------------------------");
-            System.out.println("\nRINGKASAN KONVERSI MATA UANG:");
-            currency.tampilkanInformasi();
-            System.out.printf("  Total sebelum konversi : Rp %.2f%n", totalSetelahDiskon);
-            System.out.printf("  Total akhir            : %.2f %s%n", totalFinal, currency.getKodeMataUang());
         }
-        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
-        // REKAPITULASI POIN
+        // Menentukan kode mata uang
+        String kodeUang = (currency != null) ? currency.getKodeMataUang() : "IDR";
+
+        // 4. Total tagihan sebelum pajak, diskon & admin dalam mata uang terpilih
+        String labelSebelum = String.format("Total tagihan dalam %s sebelum pajak, diskon & admin", kodeUang);
+        System.out.printf("%-55s: %.2f %s%n", labelSebelum, totalSebelumPajakKonversi, kodeUang);
+        
+        // 5. Total tagihan sesudah pajak, diskon & admin dalam mata uang terpilih
+        String labelSesudah = String.format("Total tagihan dalam %s sesudah pajak, diskon & admin", kodeUang);
+        System.out.printf("%-55s: %.2f %s%n", labelSesudah, totalFinal, kodeUang);
+
+        // REKAPITULASI POIN MEMBERSHIP
         if (member != null) {
-            int poinSekarang = member.getPoin();
             int dapatPoinBaru = memberManager.hitungPoinBaru(totalBelanjaSebelumPajak, kodeMemberAktif);
             memberManager.tambahPoinMember(kodeMemberAktif, dapatPoinBaru);
+            int poinAkhir = member.getPoin();
 
-            System.out.println("\nREKAPITULASI POIN MEMBERSHIP:");
-            System.out.printf(" - Poin sebelum transaksi          : %d poin\n", (member.getPoin() + poinDigunakan) - dapatPoinBaru); // JANGAN DIGANTII KARENA MEMBERSHIP MANAGER SUDAH DIUPDATE
-            if (poinDigunakan > 0) {
-                System.out.printf(" - Poin digunakan                  : %d poin (Rp %.0f)\n", poinDigunakan, potonganPoin);
-            }
-            System.out.printf(" - Poin diperoleh transaksi ini    : %d poin %s\n", dapatPoinBaru,
+            // 6. Jumlah poin sebelum transaksi
+            System.out.printf("%-55s: %d poin%n", "Poin sebelum transaksi", poinAwalSebelumTransaksi);
+            
+            // 7. Jumlah poin yang digunakan untuk transaksi ini
+            String infoPoinDigunakan = String.format("%d poin (Rp %.0f)", poinDigunakan, potonganPoin);
+            System.out.printf("%-55s: %s%n", "Poin yang digunakan untuk transaksi ini", infoPoinDigunakan);
+            
+            // 8. Jumlah poin yang diperoleh dari transaksi ini
+            String infoPoinBaru = String.format("%d poin %s", dapatPoinBaru, 
                 (kodeMemberAktif.toUpperCase().contains("A") ? "(DIGANDAKAN karena kode member A)" : ""));
-            System.out.printf(" - Poin akhir                      : %d poin\n", poinSekarang + dapatPoinBaru);
-            System.out.println("-----------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-55s: %s%n", "Poin yang diperoleh dari transaksi ini", infoPoinBaru);
+            
+            // 9. Poin akhir
+            System.out.printf("%-55s: %d poin%n", "Poin akhir", poinAkhir);
         }
-
+        
+        System.out.println("===========================================================================================================");
         System.out.println(centerText("terima kasih dan silakan datang kembali", lebarLayout));
         System.out.println("===========================================================================================================");
     }
