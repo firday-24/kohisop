@@ -1,8 +1,11 @@
+package processor;
+
+import model.*;
 import java.util.Scanner;
 
 public class PaymentProcessor {
 
-    public void jalankan(double totalAkhir, Scanner scan) {
+    public PaymentChannel pilihChannel(Scanner scan) {
         System.out.println("\n=============================================");
         System.out.println("         PILIH CHANNEL PEMBAYARAN           ");
         System.out.println("=============================================");
@@ -35,35 +38,15 @@ public class PaymentProcessor {
                     System.out.println("Pilihan tidak valid! Masukkan 1, 2, atau 3.");
             }
         }
+        return channel;
+    }
 
-        System.out.println("\n---------------------------------------------");
-        System.out.println("           RINGKASAN PEMBAYARAN              ");
-        System.out.println("---------------------------------------------");
-        System.out.printf ("  Total Tagihan: Rp %.2f%n", totalAkhir);
-        System.out.println("---------------------------------------------");
+    public boolean prosesPembayaran(PaymentChannel channel, double totalAkhir) {
+        return channel.proses(totalAkhir);
+    }
 
-        boolean berhasil = channel.proses(totalAkhir);
-
-        System.out.println("=============================================");
-
-        if (!berhasil) {
-            // Tawarkan ganti channel jika gagal
-            System.out.print("\nIngin mencoba channel lain? (Y/N): ");
-            String ulang = scan.nextLine().trim();
-            if (ulang.equalsIgnoreCase("Y")) {
-                jalankan(totalAkhir, scan);
-            } else {
-                System.out.println("Transaksi dibatalkan. Terima kasih!");
-            }
-        } else {
-            // Jika pembayaran berhasil, lanjut ke pemilihan mata uang
-            CurrencyProcessor currencyProc = new CurrencyProcessor();
-            double totalSetelahDiskon = channel.getTotalSetelahDiskon(totalAkhir);
-            double totalFinal = currencyProc.jalankan(totalSetelahDiskon, scan);
-            System.out.println("\n✓ Transaksi Berhasil!");
-            System.out.printf("  Total akhir: %.2f%n", totalFinal);
-            System.out.println("\nTerima kasih telah berbelanja di KohiSop!");
-        }
+    public double getTotalSetelahDiskon(PaymentChannel channel, double totalAkhir) {
+        return channel.getTotalSetelahDiskon(totalAkhir);
     }
 
     private double bacaDouble(Scanner scan) {

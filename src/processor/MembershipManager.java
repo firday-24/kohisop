@@ -62,28 +62,28 @@ public class MembershipManager {
     }
 
     private void muatDataDariFile() {
-    File file = new File(FILE_DATABASE);
-    if (!file.exists()) {
-        try {
-            file.createNewFile(); 
-        } catch (Exception e) {
-            System.out.println("Gagal membuat file database baru.");
-        }
-        return;
-    }
-    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-        String baris;
-        while ((baris = br.readLine()) != null) {
-            if (baris.trim().isEmpty()) continue;
-            String[] data = baris.split(",");
-            if (data.length == 3) {
-                daftarMember.add(new Member(data[0].trim(), data[1].trim(), Integer.parseInt(data[2].trim())));
+        File file = new File(FILE_DATABASE);
+        if (!file.exists()) {
+            try {
+                file.createNewFile(); 
+            } catch (Exception e) {
+                System.out.println("Gagal membuat file database baru.");
             }
+            return;
         }
-    } catch (Exception e) {
-        System.out.println("Gagal membaca database member.");
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String baris;
+            while ((baris = br.readLine()) != null) {
+                if (baris.trim().isEmpty()) continue;
+                String[] data = baris.split(",");
+                if (data.length == 3) {
+                    daftarMember.add(new Member(data[0].trim(), data[1].trim(), Integer.parseInt(data[2].trim())));
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Gagal membaca database member.");
+        }
     }
-}
 
     public void simpanDataKeFile() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_DATABASE))) {
@@ -93,6 +93,15 @@ public class MembershipManager {
             }
         } catch (Exception e) {
             System.out.println("Gagal menyimpan database member.");
+        }
+    }
+
+    public void kurangiPoinMember(String kodeMember, int poinDigunakan) {
+        Member m = cariMember(kodeMember);
+        if (m != null && poinDigunakan > 0) {
+            int poinBaru = Math.max(0, m.getPoin() - poinDigunakan);
+            m.setPoin(poinBaru);
+            simpanDataKeFile();
         }
     }
 }

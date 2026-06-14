@@ -1,3 +1,5 @@
+package model;
+
 public class CashPayment implements PaymentChannel {
 
     @Override
@@ -17,10 +19,8 @@ public class CashPayment implements PaymentChannel {
 
     @Override
     public boolean proses(double totalSebelumDiskon) {
-        double total = hitungTotal(totalSebelumDiskon);
-        System.out.println("  Channel      : Tunai");
-        System.out.println("  Diskon       : Rp 0.00");
-        System.out.printf ("  TOTAL BAYAR  : Rp %.2f%n", total);
+        // Tidak perlu menghitung ulang karena tidak ada diskon/biaya
+        // Summary pembayaran dipindah ke kuitansi
         return true;
     }
 }

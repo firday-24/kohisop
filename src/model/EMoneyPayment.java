@@ -1,3 +1,5 @@
+package model;
+
 public class EMoneyPayment implements PaymentChannel {
     private static final double DISKON    = 0.07;
     private static final double BIAYA_ADM = 20.0;
@@ -24,14 +26,7 @@ public class EMoneyPayment implements PaymentChannel {
 
     @Override
     public boolean proses(double totalSebelumDiskon) {
-        double diskon = totalSebelumDiskon * DISKON;
-        double total  = hitungTotal(totalSebelumDiskon);
-
-        System.out.println("  Channel      : eMoney");
-        System.out.printf ("  Diskon 7%%    : Rp %.2f%n", diskon);
-        System.out.printf ("  Biaya Admin  : Rp %.2f%n", BIAYA_ADM);
-        System.out.printf ("  TOTAL BAYAR  : Rp %.2f%n", total);
-        System.out.printf ("  Saldo eMoney : Rp %.2f%n", saldo);
+        double total = hitungTotal(totalSebelumDiskon);
 
         if (saldo < total) {
             System.out.println("\n  [GAGAL] Saldo eMoney tidak mencukupi!");
@@ -40,7 +35,6 @@ public class EMoneyPayment implements PaymentChannel {
         }
 
         saldo -= total;
-        System.out.printf ("  Sisa Saldo   : Rp %.2f%n", saldo);
         System.out.println("  [BERHASIL] Pembayaran eMoney diterima.");
         return true;
     }
