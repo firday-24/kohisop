@@ -1,6 +1,10 @@
 # Kohisop Part 2
 
-Welcome to the...
+## Group 8
+1. Dionisius Betran Kusuma Putra - 255150407111015
+2. Daffa Athallah Nooruzzaman - 255150401111021
+3. Resti Devi Widyadhari - 255150401111026
+4. Firdayani - 255150400111040
 
 ## Folder Structure
 
