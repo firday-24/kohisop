@@ -6,16 +6,16 @@ import model.*;
  * TaxCalculator - Menghitung pajak berdasarkan jenis dan harga menu.
  *
  * Aturan Pajak:
- *  Minuman:
- *    - Harga < 50            → bebas pajak (0%)
- *    - Harga >= 50 dan <= 55 → pajak 8%
- *    - Harga > 55            → pajak 11%
- *  Makanan:
- *    - Harga > 50            → pajak 8%
- *    - Harga <= 50           → pajak 11%
+ * Minuman:
+ * - Harga < 50            → bebas pajak (0%)
+ * - Harga >= 50 dan <= 55 → pajak 8%
+ * - Harga > 55            → pajak 11%
+ * Makanan:
+ * - Harga > 50            → pajak 8%
+ * - Harga <= 50           → pajak 11%
  *
- *  Pengecualian:
- *    - Member yang kode-nya mengandung karakter 'A' → bebas pajak untuk seluruh pesanan.
+ * Pengecualian:
+ * - Member yang kode-nya mengandung karakter 'A' → bebas pajak untuk seluruh pesanan.
  */
 public class TaxCalculator {
 
@@ -105,5 +105,21 @@ public class TaxCalculator {
         if (tarif == BEBAS_PAJAK)  return "0%";
         if (tarif == TARIF_RENDAH) return "8%";
         return "11%";
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  METHOD HITUNG TOTAL KESELURUHAN
+    // ─────────────────────────────────────────────────────────────
+    
+    /**
+     * Menghitung akumulasi total seluruh tagihan akhir (Harga Item + Pajak) 
+     * dari sebuah objek Order agar kelas Order bersih dari unsur perpajakan.
+     */
+    public static double hitungTotalOrderDenganPajak(Order order, String kodeMember) {
+        double totalBelanjaAkhir = 0;
+        for (OrderLine ol : order.getListPesanan()) {
+            totalBelanjaAkhir += hitungTotalDenganPajak(ol.getMenu(), ol.getKuantitas(), kodeMember);
+        }
+        return totalBelanjaAkhir;
     }
 }
