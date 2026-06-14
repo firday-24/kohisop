@@ -65,17 +65,15 @@ public class MembershipReceiptProcessor {
             }
         }
 
-        // KUITANSI 
-        int lebarLayout = 93;
-        System.out.println("\n==========================================================================================================");
-        System.out.println(centerText("ANDA SELESAI MEMESAN. BERIKUT PESANAN FINAL ANDA:", lebarLayout));
-        System.out.println("==========================================================================================================");
+        int lebarLayout = 100;
+        System.out.println("\n===========================================================================================================");
+        System.out.println(centerText("KUITANSI BELANJA KOHISOP", lebarLayout));
+        System.out.println("===========================================================================================================");
 
         Member member = (kodeMemberAktif != null) ? memberManager.cariMember(kodeMemberAktif) : null;
         if (member != null) {
             System.out.println(" Kode Member : " + member.getKodeMember());
             System.out.println(" Nama Member : " + member.getNamaMember());
-            System.out.println("----------------------------------------------------------------------------------------------------------");
         }
 
         double subtotalMakananMurni = 0;
@@ -102,19 +100,14 @@ public class MembershipReceiptProcessor {
             }
         }
 
-        // Definisi Lebar Ukuran Kolom Tabel
-        int lK = 5;   // Kode
-        int lN = 33;  // Nama Menu
-        int lQ = 5;   // Qty
-        int lH = 11;  // Harga Porsi
-        int lP1 = 9;  // Pajak (%)   
-        int lP2 = 11; // Pajak (Rp)  
-        int lT = 11;  // Total Item
+        int lK = 5, lN = 33, lQ = 5, lH = 11, lP1 = 9, lP2 = 11, lT = 11;
 
+        // 1. TABEL RINCIAN MAKANAN
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
         System.out.printf("| %s | %s | %s | %s | %s | %s | %s |\n", 
             centerText("Kode", lK), centerText("Menu Makanan", lN), centerText("Qty", lQ), 
             centerText("Harga (Rp)", lH), centerText("Pajak (%)", lP1), centerText("Pajak (Rp)", lP2), centerText("Total (Rp)", lT));
-        System.out.println("----------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
         if (listMakanan.isEmpty()) {
             System.out.printf("| %s | %-33s | %s | %s | %s | %s | %s |\n", 
                 centerText("-", lK), "Tidak ada pesanan makanan", centerText("-", lQ), centerText("-", lH), centerText("-", lP1), centerText("-", lP2), centerText("-", lT));
@@ -125,21 +118,19 @@ public class MembershipReceiptProcessor {
                 String ratePajak = TaxCalculator.getLabelTarif(ol.getMenu(), kodeMemberAktif);
 
                 System.out.printf("| %s | %-33s | %s | %s | %s | %s | %s |\n", 
-                    centerText(ol.getMenu().getKode(), lK), 
-                    ol.getMenu().getNama(), 
-                    centerText(String.valueOf(ol.getKuantitas()), lQ),
-                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH),
-                    centerText(ratePajak, lP1),
-                    centerText(String.format("%.1f", pajakItem), lP2),
-                    centerText(String.format("%.1f", totalItem), lT));
+                    centerText(ol.getMenu().getKode(), lK), ol.getMenu().getNama(), centerText(String.valueOf(ol.getKuantitas()), lQ),
+                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH), centerText(ratePajak, lP1),
+                    centerText(String.format("%.1f", pajakItem), lP2), centerText(String.format("%.1f", totalItem), lT));
             }
         }
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
-        System.out.println("----------------------------------------------------------------------------------------------------------");
+        // 2. TABEL RINCIAN MINUMAN
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
         System.out.printf("| %s | %s | %s | %s | %s | %s | %s |\n", 
             centerText("Kode", lK), centerText("Menu Minuman", lN), centerText("Qty", lQ), 
             centerText("Harga (Rp)", lH), centerText("Pajak (%)", lP1), centerText("Pajak (Rp)", lP2), centerText("Total (Rp)", lT));
-        System.out.println("----------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
         if (listMinuman.isEmpty()) {
             System.out.printf("| %s | %-33s | %s | %s | %s | %s | %s |\n", 
                 centerText("-", lK), "Tidak ada pesanan minuman", centerText("-", lQ), centerText("-", lH), centerText("-", lP1), centerText("-", lP2), centerText("-", lT));
@@ -150,32 +141,28 @@ public class MembershipReceiptProcessor {
                 String ratePajak = TaxCalculator.getLabelTarif(ol.getMenu(), kodeMemberAktif);
 
                 System.out.printf("| %s | %-33s | %s | %s | %s | %s | %s |\n", 
-                    centerText(ol.getMenu().getKode(), lK), 
-                    ol.getMenu().getNama(), 
-                    centerText(String.valueOf(ol.getKuantitas()), lQ),
-                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH),
-                    centerText(ratePajak, lP1),
-                    centerText(String.format("%.1f", pajakItem), lP2),
-                    centerText(String.format("%.1f", totalItem), lT));
-                    System.out.println("----------------------------------------------------------------------------------------------------------");
+                    centerText(ol.getMenu().getKode(), lK), ol.getMenu().getNama(), centerText(String.valueOf(ol.getKuantitas()), lQ),
+                    centerText(String.format("%.0f", ol.getMenu().getHarga()), lH), centerText(ratePajak, lP1),
+                    centerText(String.format("%.1f", pajakItem), lP2), centerText(String.format("%.1f", totalItem), lT));
             }
         }
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
-        // BLOK INFORMASI PEMBAYARAN & MATA UANG
+        // 3. BLOK INFORMASI PEMBAYARAN
         double totalBelanjaSebelumPajak = order.hitungTotalTanpaPajak();
         System.out.println("INFORMASI PEMBAYARAN & MATA UANG (Mendatang):");
         System.out.printf(" - Total tagihan sebelum penyesuaian    : %.0f\n", totalBelanjaSebelumPajak);
         System.out.println(" - Mata uang pembayaran                 : (Akan dihitung di Modul Mata Uang)");
         System.out.println(" - Diskon channel pembayaran            : (Akan dihitung di Modul Channel Pembayaran)");
         System.out.println(" - Biaya admin channel pembayaran       : (Akan dihitung di Modul Channel Pembayaran)");
-        System.out.println("----------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
-        //TOTAL TAGIHAN FINAL AKHIR
-        double totalTagihanReal = (subtotalMakananMurni + pajakMakananTotal) + (subtotalMinumanMurni + pajakMinumanTotal);
+        // 4. TOTAL TAGIHAN FINAL AKHIR 
+        double totalTagihanReal = TaxCalculator.hitungTotalOrderDenganPajak(order, kodeMemberAktif);
         System.out.printf("TOTAL TAGIHAN AKHIR                   : %.0f\n", totalTagihanReal);
-        System.out.println("----------------------------------------------------------------------------------------------------------");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
 
-        // REKAPITULASI POIN MEMBERSHIP
+        // 5. REKAPITULASI POIN
         if (member != null) {
             int poinSebelum = member.getPoin();
             int dapatPoin = memberManager.hitungPoinBaru(totalBelanjaSebelumPajak, kodeMemberAktif);
@@ -186,10 +173,10 @@ public class MembershipReceiptProcessor {
             System.out.printf(" - Perolehan poin dari transaksi ini    : %d poin %s\n", dapatPoin,
                 (kodeMemberAktif.toUpperCase().contains("A") ? "(DIGANDAKAN karena kode mengandung 'A')" : ""));
             System.out.printf(" - Jumlah poin setelah transaksi        : %d poin\n", member.getPoin());
-            System.out.println("----------------------------------------------------------------------------------------------------------");
+            System.out.println("-----------------------------------------------------------------------------------------------------------");
         }
 
         System.out.println(centerText("terima kasih dan silakan datang kembali", lebarLayout));
-        System.out.println("==========================================================================================================");
+        System.out.println("===========================================================================================================");
     }
 }
