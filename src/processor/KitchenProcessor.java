@@ -1,7 +1,7 @@
 package processor;
 
-import model.*;
 import java.util.*;
+import model.*;
 
 public class KitchenProcessor {
     private Queue<OrderLine> antrianMakanan; // PriorityQueue harga tertinggi dulu
@@ -21,6 +21,10 @@ public class KitchenProcessor {
                 antrianMinuman.push(ol);
             }
         }
+    }
+
+    public boolean apakahAdaPesanan() {
+        return !antrianMakanan.isEmpty() || !antrianMinuman.isEmpty();
     }
 
     public void prosesPesananDapur() {

@@ -4,7 +4,7 @@ A23FB9,Budi Santoso,71
 F04C3B,Caca,20
 966EDE,Atha,39
 B28602,Rania,51
-AEF7DB,daffa,0
+AEF7DB,daffa,8
 A93F5D,pou,8
 DAD559,igot,10
 E50240,lompa,4

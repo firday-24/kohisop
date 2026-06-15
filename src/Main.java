@@ -22,7 +22,6 @@ public class Main {
 
             if (customerCount >= 3) {
                 kitchen.prosesPesananDapur();
-                // Reset untuk melayani pelanggan berikutnya
                 kitchen = new KitchenProcessor();
                 customerCount = 0;
                 System.out.println("\n--- Dapur selesai, siap melayani pelanggan berikutnya ---\n");
@@ -31,6 +30,9 @@ public class Main {
             System.out.print("Ada pelanggan lagi? (Y/N): ");
             String answer = scan.nextLine().trim().toUpperCase();
             if (!answer.equals("Y") && !answer.equals("YES")) {
+                if (kitchen.apakahAdaPesanan()) {
+                    kitchen.prosesPesananDapur();
+                }
                 System.out.println("\n=== Program Selesai ===");
                 break;
             }
