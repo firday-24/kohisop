@@ -1,9 +1,9 @@
 package processor;
 
-import model.*;
 import Currency.PaymentCurrency;
 import java.util.ArrayList;
 import java.util.Scanner;
+import model.*;
 
 public class MembershipReceiptProcessor {
     private MembershipManager memberManager;
@@ -78,8 +78,25 @@ public class MembershipReceiptProcessor {
         // Simpan nilai poin awal sebelum diutak-atik untuk dicetak di rekapitulasi nanti
         int poinAwalSebelumTransaksi = (member != null) ? member.getPoin() : 0;
 
-        // === LOGIKA PEMOTONGAN POIN MEMBERSHIP (Partial) ===
-        if (member != null && member.getPoin() > 0) {
+        // Variabel untuk channel dan currency
+        PaymentChannel channel = null;
+        PaymentCurrency currency = null;
+        double totalSetelahDiskon = totalDenganPajak;
+        double totalFinal = totalDenganPajak;
+        double totalSebelumPajakKonversi = 0;
+
+        // === Pilih Mata Uang TERLEBIH DAHULU ===
+        CurrencyProcessor currencyProc = new CurrencyProcessor();
+        currency = currencyProc.pilihMataUang(scanner);
+        
+        // Hitung total tagihan dalam mata uang asing SEBELUM pajak, diskon, dan admin (berdasarkan nilai belanja asli)
+        totalSebelumPajakKonversi = currencyProc.konversi(totalBelanjaSebelumPajak, currency);
+        
+        // Total akhir setelah perhitungan semua komponen (sebelum diskon channel dan poin)
+        totalFinal = currencyProc.konversi(totalDenganPajak, currency);
+
+        // === LOGIKA PEMOTONGAN POIN MEMBERSHIP - HANYA UNTUK CURRENCY IDR ===
+        if (member != null && member.getPoin() > 0 && "IDR".equals(currency.getKodeMataUang())) {
             int poinTersedia = member.getPoin();
             double maksPotongan = poinTersedia * 2.0; // 1 poin = Rp 2
 
@@ -100,18 +117,14 @@ public class MembershipReceiptProcessor {
                     }
                 }
             }
+        } else if (member != null && member.getPoin() > 0 && !"IDR".equals(currency.getKodeMataUang())) {
+            System.out.printf("\n⚠ Poin tidak dapat digunakan untuk mata uang %s. Poin dapat digunakan hanya untuk transaksi dengan IDR.%n", currency.getKodeMataUang());
+            System.out.printf("   Poin Anda tetap disimpan: %d poin%n", member.getPoin());
         }
 
         double totalSetelahPoin = totalDenganPajak - potonganPoin;
 
-        // Variabel untuk channel dan currency
-        PaymentChannel channel = null;
-        PaymentCurrency currency = null;
-        double totalSetelahDiskon = totalSetelahPoin;
-        double totalFinal = totalSetelahPoin;
-        double totalSebelumPajakKonversi = 0;
-
-        // === Jika belum lunas dengan poin, baru pilih channel dan mata uang ===
+        // === Jika belum lunas dengan poin, baru pilih channel ===
         if (!lunasDenganPoin && totalSetelahPoin > 0) {
             // === Pilih Channel & Proses Pembayaran ===
             PaymentProcessor paymentProc = new PaymentProcessor();
@@ -130,16 +143,17 @@ public class MembershipReceiptProcessor {
             }
 
             totalSetelahDiskon = paymentProc.getTotalSetelahDiskon(channel, totalSetelahPoin);
-
-            // === Pilih Mata Uang ===
-            CurrencyProcessor currencyProc = new CurrencyProcessor();
-            currency = currencyProc.pilihMataUang(scanner);
             
-            // Hitung total tagihan dalam mata uang asing SEBELUM pajak, diskon, dan admin (berdasarkan nilai belanja asli)
-            totalSebelumPajakKonversi = currencyProc.konversi(totalBelanjaSebelumPajak, currency);
-            
-            // Total akhir setelah perhitungan semua komponen
+            // Update totalFinal setelah diskon channel diterapkan
             totalFinal = currencyProc.konversi(totalSetelahDiskon, currency);
+        } else if (lunasDenganPoin) {
+            // Jika lunas dengan poin, tidak ada diskon channel
+            totalSetelahDiskon = totalSetelahPoin;
+            totalFinal = currencyProc.konversi(totalSetelahDiskon, currency);
+        } else {
+            // Jika totalSetelahPoin = 0, sudah lunas (kasus khusus)
+            totalSetelahDiskon = 0;
+            totalFinal = 0;
         }
 
         // === CETAK KUITANSI LENGKAP ===
