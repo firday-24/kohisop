@@ -1,8 +1,10 @@
+import java.util.Scanner;
 import model.*;
 import processor.*;
 
 public class Main {
     public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
         KitchenProcessor kitchen = new KitchenProcessor();
         int customerCount = 0;
 
@@ -27,7 +29,12 @@ public class Main {
             }
 
             System.out.print("Ada pelanggan lagi? (Y/N): ");
-            // ...
+            String answer = scan.nextLine().trim().toUpperCase();
+            if (!answer.equals("Y") && !answer.equals("YES")) {
+                System.out.println("\n=== Program Selesai ===");
+                break;
+            }
         }
+        scan.close();
     }
 }
