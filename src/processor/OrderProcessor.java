@@ -154,11 +154,11 @@ public class OrderProcessor {
 
         System.out.println("Catatan:\nMaksimal pesan adalah 5 jenis untuk makanan dan minuman");
         System.out.println("Maksimal kuantitas untuk tiap jenis makanan adalah 2\nMaksimal kuantitas untuk tiap jenis minuman adalah 3");
-        System.out.println("----------------------------------------------------------");
-        System.out.printf("| %s | %s | %s |\n", centerText("Kode", lebarKode), centerText("Menu Minuman", lebarNama), centerText("Harga(Rp.)", lebarHarga));
+         System.out.println("----------------------------------------------------------");
+        System.out.printf("| %s | %s | %s |\n", centerText("Kode", lebarKode), centerText("Menu Makanan", lebarNama), centerText("Harga(Rp.)", lebarHarga));
         System.out.println("----------------------------------------------------------");
         for (Menu m : daftarMenu) {
-            if (m instanceof Minuman) {
+            if (m instanceof Makanan) {
                 System.out.printf("| %s | %-33s | %s |\n", 
                     centerText(m.getKode(), lebarKode), 
                     m.getNama(), // Rata kiri
@@ -167,10 +167,11 @@ public class OrderProcessor {
             }
         }
         System.out.println("----------------------------------------------------------");
-        System.out.printf("| %s | %s | %s |\n", centerText("Kode", lebarKode), centerText("Menu Makanan", lebarNama), centerText("Harga(Rp.)", lebarHarga));
+    
+        System.out.printf("| %s | %s | %s |\n", centerText("Kode", lebarKode), centerText("Menu Minuman", lebarNama), centerText("Harga(Rp.)", lebarHarga));
         System.out.println("----------------------------------------------------------");
         for (Menu m : daftarMenu) {
-            if (m instanceof Makanan) {
+            if (m instanceof Minuman) {
                 System.out.printf("| %s | %-33s | %s |\n", 
                     centerText(m.getKode(), lebarKode), 
                     m.getNama(), // Rata kiri
