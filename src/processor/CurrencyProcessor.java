@@ -1,12 +1,10 @@
-import Currency.EUR;
-import Currency.JPY;
-import Currency.MYR;
-import Currency.PaymentCurrency;
-import Currency.USD;
+package processor;
+import Currency.*;
 import java.util.Scanner;
 
 public class CurrencyProcessor {
-    public double jalankan(double totalIDR, Scanner scan) {
+
+    public PaymentCurrency pilihMataUang(Scanner scan) {
         System.out.println("\n=============================================");
         System.out.println("      PILIH MATA UANG PEMBAYARAN              ");
         System.out.println("=============================================");
@@ -39,24 +37,15 @@ public class CurrencyProcessor {
                     System.out.println("Pilihan tidak valid! Masukkan 1, 2, 3, atau 4.");
             }
         }
+        return currency;
+    }
 
-        System.out.println("\n---------------------------------------------");
-        System.out.println("           RINGKASAN KONVERSI                ");
-        System.out.println("---------------------------------------------");
-        currency.tampilkanInformasi();
-        System.out.printf("  Total dalam IDR: Rp %.2f%n", totalIDR);
-
-        double totalTerkonversi = currency.konversiDariIDR(totalIDR);
-        System.out.printf("  Total dalam %s: %.2f %s%n",
-                currency.getNamaMataUang(),
-                totalTerkonversi,
-                currency.getKodeMataUang());
-        System.out.println("---------------------------------------------");
-
-        return totalTerkonversi;
+    public double konversi(double totalIDR, PaymentCurrency currency) {
+        return currency.konversiDariIDR(totalIDR);
     }
 
     public void tampilkanSemuaMataUang() {
+        // Optional: bisa dipanggil jika diperlukan
         System.out.println("\n================== MATA UANG YANG TERSEDIA ==================");
         new USD().tampilkanInformasi();
         System.out.println();
