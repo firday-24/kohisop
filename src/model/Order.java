@@ -39,15 +39,50 @@ public class Order {
         return true;
     }
 
+    // Memproses penambahan menu baru atau memperbarui kuantitas pesanan yang sudah ada
     public boolean tambahPesanan(Menu menu, int kuantitas) {
+        OrderLine existingItem = null;
+
+        // Mencari apakah item sudah ada di daftar pesanan
         for (OrderLine ol : listPesanan) {
             if (ol.getMenu().getKode().equalsIgnoreCase(menu.getKode())) {
-                ol.setKuantitas(ol.getKuantitas() + kuantitas);
-                return true;
+                existingItem = ol;
+                break;
             }
         }
-        if (!apakahSlotTersedia(menu)) return false;
-        listPesanan.add(new OrderLine(menu, kuantitas));
+
+        // Jika item sudah ada, akumulasikan jumlah kuantitas lamanya dengan input baru
+        if (existingItem != null) {
+            int totalQty = existingItem.getKuantitas() + kuantitas;
+            if (validasiKuantitas(menu, totalQty)) {
+                existingItem.setKuantitas(totalQty);
+                return true;
+            }
+            return false;
+        }
+
+        // Jika item benar-benar baru, lakukan validasi kuantitas lalu masukkan ke dalam list
+        if (validasiKuantitas(menu, kuantitas)) {
+            listPesanan.add(new OrderLine(menu, kuantitas));
+            return true;
+        }
+        return false;
+    }
+
+    // Memvalidasi batasan maksimal jumlah porsi porsi per jenis (Makanan maks 2, Minuman maks 3)
+    private boolean validasiKuantitas(Menu menu, int kuantitas) {
+        if (menu instanceof Makanan && kuantitas > 2) {
+            System.out.println("Gagal! Total pesanan " + menu.getNama() + " akan menjadi " + kuantitas + " porsi. Maksimal per jenis hanya 2 porsi.");
+            return false;
+        }
+        if (menu instanceof Minuman && kuantitas > 3) {
+            System.out.println("Gagal! Total pesanan " + menu.getNama() + " akan menjadi " + kuantitas + " porsi. Maksimal per jenis hanya 3 porsi.");
+            return false;
+        }
+        if (kuantitas < 1) {
+            System.out.println("Gagal! Jumlah kuantitas tidak valid.");
+            return false;
+        }
         return true;
     }
 
