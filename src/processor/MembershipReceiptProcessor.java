@@ -181,6 +181,7 @@ public class MembershipReceiptProcessor {
         
         // 2. Total harga dengan pajak
         System.out.printf("%-55s: Rp %.0f%n", "Total harga dengan pajak", totalDenganPajak);
+        System.out.println("===========================================================================================================");
         
         // 3. Diskon channel
         System.out.printf("%-55s: ", "Diskon channel");
@@ -196,6 +197,7 @@ public class MembershipReceiptProcessor {
                 System.out.println(" / tanpa diskon");
             }
         }
+        System.out.println("===========================================================================================================");
 
         // Menentukan kode mata uang
         String kodeUang = (currency != null) ? currency.getKodeMataUang() : "IDR";
@@ -207,6 +209,7 @@ public class MembershipReceiptProcessor {
         // 5. Total tagihan sesudah pajak, diskon & admin dalam mata uang terpilih
         String labelSesudah = String.format("Total tagihan dalam %s sesudah pajak, diskon & admin", kodeUang);
         System.out.printf("%-55s: %.2f %s%n", labelSesudah, totalFinal, kodeUang);
+        System.out.println("===========================================================================================================");
 
         // REKAPITULASI POIN MEMBERSHIP
         if (member != null) {
